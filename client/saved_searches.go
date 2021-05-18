@@ -1,8 +1,10 @@
 package client
 
 import (
-	"github.com/splunk/terraform-provider-splunk/client/models"
 	"net/http"
+	"strings"
+
+	"github.com/splunk/terraform-provider-splunk/client/models"
 
 	"github.com/google/go-querystring/query"
 )
@@ -33,10 +35,23 @@ func (client *Client) ReadSavedSearches(name, owner, app string) (*http.Response
 	return resp, nil
 }
 
-func (client *Client) UpdateSavedSearches(name string, owner string, app string, savedSearchObject *models.SavedSearchObject) error {
+func (client *Client) UpdateSavedSearches(name string, owner string, app string, savedSearchObject *models.SavedSearchObject, changes []string) error {
 	values, err := query.Values(&savedSearchObject)
 	if err != nil {
 		return err
+	}
+	for key := range values {
+		found := false
+		underscoredKey := strings.Replace(key, ".", "_", -1)
+		for _, change := range changes {
+			if underscoredKey == change {
+				found = true
+				break
+			}
+		}
+		if !found {
+			values.Del(key)
+		}
 	}
 	endpoint := client.BuildSplunkURL(nil, "servicesNS", owner, app, "saved", "searches", name)
 	resp, err := client.Post(endpoint, values)

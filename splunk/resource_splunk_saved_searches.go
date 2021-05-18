@@ -1456,7 +1456,15 @@ func savedSearchesUpdate(d *schema.ResourceData, meta interface{}) error {
 		owner = aclObject.Owner
 	}
 
-	err := (*provider.Client).UpdateSavedSearches(d.Id(), owner, aclObject.App, savedSearchesConfig)
+	changes := []string{}
+	schema := savedSearches()
+	for key := range schema.Schema {
+		if d.HasChange(key) {
+			changes = append(changes, key)
+		}
+	}
+
+	err := (*provider.Client).UpdateSavedSearches(d.Id(), owner, aclObject.App, savedSearchesConfig, changes)
 	if err != nil {
 		return err
 	}
