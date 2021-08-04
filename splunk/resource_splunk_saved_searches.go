@@ -233,6 +233,12 @@ func savedSearches() *schema.Resource {
 				Computed:    true,
 				Description: "Specifies an alternate email subject.Defaults to SplunkAlert-<savedsearchname>.",
 			},
+			"action_email_subject_alert": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Specifies an alternate email subject.Defaults to SplunkAlert-<savedsearchname>.",
+			},
 			"action_email_to": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -1127,6 +1133,9 @@ func savedSearchesRead(d *schema.ResourceData, meta interface{}) error {
 	if err = d.Set("action_email_subject", entry.Content.ActionEmailSubject); err != nil {
 		return err
 	}
+	if err = d.Set("action_email_subject_alert", entry.Content.ActionEmailSubjectAlert); err != nil {
+		return err
+	}
 	if err = d.Set("action_email_to", entry.Content.ActionEmailTo); err != nil {
 		return err
 	}
@@ -1533,6 +1542,7 @@ func getSavedSearchesConfig(d *schema.ResourceData) (savedSearchesObj *models.Sa
 		ActionEmailSendPDF:                 d.Get("action_email_send_pdf").(bool),
 		ActionEmailSendResults:             d.Get("action_email_send_results").(bool),
 		ActionEmailSubject:                 d.Get("action_email_subject").(string),
+		ActionEmailSubjectAlert:            d.Get("action_email_subject_alert").(string),
 		ActionEmailTo:                      d.Get("action_email_to").(string),
 		ActionEmailTrackAlert:              d.Get("action_email_track_alert").(bool),
 		ActionEmailTTL:                     d.Get("action_email_ttl").(string),
